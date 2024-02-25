@@ -106,7 +106,7 @@ local Pages = {} local Sections = {}
 Pages.Main = UI:addPage('Main', 5012544693)
 Pages.Farming = UI:addPage('Farming', 5012544693)
 Pages.Claimables = UI:addPage('Claimables', 5012544693)
--- Pages.Relics = UI:addPage('Relics', 5012544693)
+Pages.Relics = UI:addPage('Relics', 5012544693)
 -- Pages.Shop = UI:addPage('Shop', 5012544693)
 Pages.Settings = UI:addPage('Settings', 5012544693)
 
@@ -181,11 +181,16 @@ Sections.Claimables:addButton('Claim Spins', function()
     end)()
 end)
 
--- Sections.Relics = Pages.Relics:addSection('Relics')
--- Sections.Relics:addSlider('Minimum Amount', 3, 3, 33, function(value) getgenv().Settings.relics.minimum = value end)
--- Sections.Relics:addToggle('Auto Merge Relics', nil, function(value)
-
--- end)
+Sections.Relics = Pages.Relics:addSection('Relics')
+Sections.Relics:addSlider('Minimum Amount', 3, 3, 33, function(value) getgenv().Settings.relics.minimum = value end)
+Sections.Relics:addToggle('Auto Merge Relics', nil, function(value)
+    getgenv().Settings.relics.enabled = value
+    while getgenv().Settings.relics.enabled and task.wait(.1) do 
+        coroutine.wrap(function()
+            Utils:mergeRelics()
+        end)()
+    end
+end)
 
 Sections.Settings = Pages.Settings:addSection('Settings')
 Sections.Settings:addKeybind('Toggle GUI', Enum.KeyCode.RightShift, function() UI:toggle() end)
@@ -193,6 +198,5 @@ Sections.Settings:addButton('Destroy GUI', function()
     Utils:initEnvs()
     game:GetService('CoreGui')[Name]:Destroy() 
 end)
-
 
 UI:SelectPage(UI.pages[1], true)
