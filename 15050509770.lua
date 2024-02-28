@@ -7,7 +7,7 @@ local Services = {
     ['Players'] = game:GetService('Players'),
     ['PlayerScripts'] = game:GetService('Players').LocalPlayer.PlayerScripts,
     ['PlayerGui'] = game:GetService('Players').LocalPlayer.PlayerGui,
-    ['VirtualUser'] = game:GetService('VirtualUser'),
+    ['VirtualInputManager'] = game:GetService('VirtualInputManager'),
     ['ReplicatedStorage'] = game:GetService('ReplicatedStorage')
 }
 
@@ -26,6 +26,7 @@ do
             click = false,
             rebirth = false,
             superRebirth = false,
+            buyGems = false,
             relics = {
                 enabled = false,
                 minimum = 3
@@ -50,17 +51,80 @@ do
     end
 
     function Utils:doClick()
-        Services.VirtualUser:CaptureController()
-        Services.VirtualUser:ClickButton1(Vector2.new(0, 0), Services.Workspace.CurrentCamera.CFrame)
+        -- local StarterGui = game:GetService("StarterGui")
+        -- local ScreenGui = StarterGui:WaitForChild("Info") -- Replace "Info" with the name of your ScreenGui
+
+        -- local Mouse = Services.Players.LocalPlayer:GetMouse()
+
+        -- if ScreenGui and ScreenGui:IsA("ScreenGui") then
+        --     local screenSize = ScreenGui.AbsoluteSize
+        --     if Mouse.X >= 0 and Mouse.X <= screenSize.X and Mouse.Y >= 0 and Mouse.Y <= screenSize.Y then
+        --         Services.VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, false, ScreenGui, 1)
+        --         Services.VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, true, ScreenGui, 1)
+        --     end
+        -- end
+
+        -- Services.VirtualInputManager:SendTouchEvent(0, 0, 0, true, Services.PlayerGui.Info.Reward, 1)
+        -- Services.VirtualInputManager:SendTouchEvent(0, 0, 0, false, Services.PlayerGui.Info.Reward, 1)
+        -- local Mouse = Services.Players.LocalPlayer:GetMouse()
+        -- print(Mouse)
+        -- Services.VirtualInputManager:SendTouchEvent(0, true, Mouse.X, Mouse.Y)
+        -- Services.VirtualInputManager:SendTouchEvent(1, false, Mouse.X, Mouse.Y)
+
+        -- Services.VirtualInputManager:SendTouchEvent(Mouse.X, Mouse.Y, 0, false, Services.PlayerGui.Info.Reward)
+        -- Services.VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, true, Services.PlayerGui.Info.Reward, 1)
+        -- Services.VirtualInputManager:SendMouseButtonEvent(Mouse.X, Mouse.Y, 0, false, Services.PlayerGui.Info.Reward, 1)
+        -- Services.VirtualUser:CaptureController()
+        -- Services.VirtualUser:ClickButton1(Vector2.new(0, 0), Services.Workspace.CurrentCamera.CFrame)
     end
 
     function Utils:doPushToEnd()
         local progress = tonumber(Services.PlayerGui.ProgressGui.BarTip.Bar.ClickToShow.Val.Text:sub(1, -4))
-        local ball = Services.Workspace.Ball:FindFirstChild(tostring(Services.Players.LocalPlayer.UserId))
-        if ball then 
-            Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = Services.Workspace.End[Services.Players.LocalPlayer.World.Value].CFrame
-            if progress >= 95 or progress == 100 or progress == 0 then Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1) end
-        else Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerTryBall'):FireServer(Services.Players.LocalPlayer.World.Value) end
+        local world, ball = Services.Players.LocalPlayer.World.Value, Services.Players.LocalPlayer.Ball.Value
+        
+        if ball == tostring(Services.Players.LocalPlayer.UserId) then       
+            if world == -2 then if progress >= 35 then Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1) end
+            else 
+                Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = Services.Workspace.End[world].CFrame 
+                Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1) 
+            end
+        else Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerTryBall'):FireServer(tonumber(world)) end
+
+        -- if hasBall == tostring(Services.Players.LocalPlayer.UserId) then
+        --     repeat Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = CFrame.new(575, 370, -47551) wait() until progress >= 35
+        --     -- Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = CFrame.new(575, 370, -47551)
+        --     Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame *= CFrame.Angles(0, 0, math.rad(180))
+        --     -- Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = Services.Workspace.End[Services.Players.LocalPlayer.World.Value].CFrame
+        --     -- if progress >= 35 then Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1) end
+        -- end 
+            -- workspace.Ball[tostring(Services.Players.LocalPlayer.UserId)][Services.Players.LocalPlayer.World.Value].CFrame = Services.Workspace.End[Services.Players.LocalPlayer.World.Value].CFrame
+            -- Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = Services.Workspace.End[Services.Players.LocalPlayer.World.Value].CFrame
+            
+            -- Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = Services.Workspace.End[Services.Players.LocalPlayer.World.Value].CFrame
+            -- Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1)
+        -- else
+        --     Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerTryBall'):FireServer(tonumber(Services.Players.LocalPlayer.World.Value)) 
+        -- end
+
+        -- if hasBall ==  then
+        --     Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1)
+        -- else
+        --     Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerTryBall'):FireServer(tonumber(Services.Players.LocalPlayer.World.Value)) 
+        -- end
+        -- if hasBall == nil then Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerTryBall'):FireServer(tonumber(Services.Players.LocalPlayer.World.Value))
+        -- else 
+        --     if progress >= 95 or progress == 100 or progress == 0 then Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1) end 
+        -- end
+        -- local ball = Services.Workspace.Ball:FindFirstChild(tostring(Services.Players.LocalPlayer.UserId))
+        -- if ball then 
+        --     Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = Services.Workspace.End[Services.Players.LocalPlayer.World.Value].CFrame
+        --     if progress >= 95 or progress == 100 or progress == 0 then Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerEnd'):FireServer(true, 1) end
+        -- else Services.ReplicatedStorage.Remote.Event.Game:FindFirstChild('[C-S]PlayerTryBall'):FireServer(Services.Players.LocalPlayer.World.Value) end
+    end
+
+    function Utils:buyGems()
+        local stars = tonumber(Services.Players.LocalPlayer.PlayerGui.Main.RebirthUpgrade.Show.Val.Text)
+        if stars >= 1 then Services.ReplicatedStorage.Remote.Event.Eco:FindFirstChild('[C-S]PlayerTryUp'):FireServer('Up_Gems') end
     end
 
     function Utils:doRebirth()
@@ -108,6 +172,7 @@ Pages.Farming = UI:addPage('Farming', 5012544693)
 Pages.Claimables = UI:addPage('Claimables', 5012544693)
 Pages.Relics = UI:addPage('Relics', 5012544693)
 -- Pages.Shop = UI:addPage('Shop', 5012544693)
+-- Pages.Miscs = UI:addPage('Miscs', 5012544693)
 Pages.Settings = UI:addPage('Settings', 5012544693)
 
 Sections.Main = Pages.Main:addSection('Welcome ' .. Services.Players.LocalPlayer.Name .. ', thanks for using my script.')
@@ -117,17 +182,18 @@ if (game.PlaceVersion ~= 4485) then
 end
 
 Sections.Farming = Pages.Farming:addSection('Farming')
-Sections.Farming:addToggle('Auto Click', nil, function(value)
-    getgenv().Settings.click = value
-    while getgenv().Settings.click and task.wait(.15) do 
-        coroutine.wrap(function()
-            Utils:doClick() 
-        end)()
-    end
-end)
+-- Sections.Farming:addToggle('Auto Click', nil, function(value)
+--     getgenv().Settings.click = value
+--     while getgenv().Settings.click and task.wait(.15) do 
+--         coroutine.wrap(function()
+--             Utils:doClick() 
+--         end)()
+--     end
+-- end)
 Sections.Farming:addToggle('Auto Push', nil, function(value)
+    -- setclipboard(tostring(Services.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame))
     getgenv().Settings.push = value
-    while getgenv().Settings.push and task.wait(.1) do 
+    while getgenv().Settings.push and task.wait(.5) do 
         coroutine.wrap(function()
             Utils:doPushToEnd() 
         end)()
@@ -191,6 +257,35 @@ Sections.Relics:addToggle('Auto Merge Relics', nil, function(value)
         end)()
     end
 end)
+Sections.Relics:addToggle('Auto Buy Gems', nil, function(value)
+    getgenv().Settings.buyGems = value
+    while getgenv().Settings.buyGems and task.wait(.1) do 
+        coroutine.wrap(function()
+            Utils:buyGems() 
+        end)()
+    end
+end)
+
+-- Cove Relics, Space Relics, Heaven Relics, Pyramid Relics, Temple Relics, Atlantis Relics
+
+-- Sections.Miscs = Pages.Miscs:addSection('Miscs')
+-- Sections.Miscs:addToggle('Auto Buy Gems', nil, function(value)
+--     getgenv().Settings.relics.enabled = value
+--     while getgenv().Settings.relics.enabled and task.wait(.1) do 
+--         coroutine.wrap(function()
+--             Utils:mergeRelics()
+--         end)()
+--     end
+-- end)
+-- uiSecs.ShopSec3:addDropdown('Select Relic Store', upgradesList, function(upgrade) selectedUpgrade = upgrade end)
+-- Sections.Miscs:addToggle('Auto Buy Relics', nil, function(value)
+--     getgenv().Settings.relics.enabled = value
+--     while getgenv().Settings.relics.enabled and task.wait(.1) do 
+--         coroutine.wrap(function()
+--             Utils:mergeRelics()
+--         end)()
+--     end
+-- end)
 
 Sections.Settings = Pages.Settings:addSection('Settings')
 Sections.Settings:addKeybind('Toggle GUI', Enum.KeyCode.RightShift, function() UI:toggle() end)
