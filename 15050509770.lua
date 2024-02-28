@@ -7,6 +7,7 @@ local Services = {
     ['Players'] = game:GetService('Players'),
     ['PlayerScripts'] = game:GetService('Players').LocalPlayer.PlayerScripts,
     ['PlayerGui'] = game:GetService('Players').LocalPlayer.PlayerGui,
+    ['VirtualUser'] = game:GetService('VirtualUser'),
     ['VirtualInputManager'] = game:GetService('VirtualInputManager'),
     ['ReplicatedStorage'] = game:GetService('ReplicatedStorage')
 }
@@ -22,6 +23,7 @@ do
             claimEvent = false,
             claimGifts = false,
             claimQuest = false,
+            antiAfk = false,
             push = false,
             click = false,
             rebirth = false,
@@ -160,12 +162,19 @@ do
         if Services.PlayerGui.Main.OnlineEvent.Info.Button.Claim.Visible == false then return end
         Services.ReplicatedStorage.Remote.Event.Events:FindFirstChild('[C-S]PlayerTryGetEventReward'):FireServer('OnlineEvent')
     end
+
+    function Utils:antiAfk()
+        local success, remote = pcall(function() return Services.ReplicatedStorage.Remote.Event.AFK['[C-S]AFKHandle'] end)
+        if success and remote then remote:Destroy() end
+    end
 end 
 
-local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/zshvde/ui/main/ui.lua'))() Utils:initEnvs()
+local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/zshvde/ui/main/ui.lua'))() 
 local Name = game:GetService('HttpService'):GenerateGUID(false):gsub('-', ''):gsub('.', function(c) if math.random() < 0.5 then return '' else return c end end) local UI = Library.new(Name)
 
 local Pages = {} local Sections = {}
+
+Utils:initEnvs() 
 
 Pages.Main = UI:addPage('Main', 5012544693)
 Pages.Farming = UI:addPage('Farming', 5012544693)
@@ -289,6 +298,16 @@ end)
 
 Sections.Settings = Pages.Settings:addSection('Settings')
 Sections.Settings:addKeybind('Toggle GUI', Enum.KeyCode.RightShift, function() UI:toggle() end)
+Sections.Settings:addButton('Anti AFK', function()
+    if getgenv().Settings.antiAfk == false then
+        Services.Players.LocalPlayer.Idled:connect(function()
+           Services.VirtualUser:Button2Down(Vector2.new(0,0), Services.Workspace.CurrentCamera.CFrame)
+           wait(1) Services.VirtualUser:Button2Up(Vector2.new(0,0), Services.Workspace.CurrentCamera.CFrame)
+        end)
+        getgenv().Settings.antiAfk = true
+        coroutine.wrap(function() while task.wait(2.5) do Utils:antiAfk() end end)()
+    else return end
+end)
 Sections.Settings:addButton('Destroy GUI', function()
     Utils:initEnvs()
     game:GetService('CoreGui')[Name]:Destroy() 
