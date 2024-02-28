@@ -28,7 +28,11 @@ do
             click = false,
             rebirth = false,
             superRebirth = false,
-            buyGems = false,
+            relics = {
+                enabled = false,
+                current = ''
+            },
+            gems = false,
             relics = {
                 enabled = false,
                 minimum = 3
@@ -49,6 +53,12 @@ do
     function Utils:mergeRelics()
         for i,v in next, Utils:getRelicsBackpack() do
             if v >= getgenv().Settings.relics.minimum then Services.ReplicatedStorage.Remote.Event.Ornaments.PlayerTryMerge:FireServer({i, i, i}) end
+        end
+    end
+
+    function Utils:buyRelics(value)
+        if Services.Players.LocalPlayer.Eco.gem.Value >= value[2] then
+            Services.ReplicatedStorage.Remote.Function.Ornaments:FindFirstChild('[C-S]PlayerTryDoLuck'):InvokeServer(value[1], 1)
         end
     end
 
@@ -256,7 +266,35 @@ Sections.Claimables:addButton('Claim Spins', function()
     end)()
 end)
 
-Sections.Relics = Pages.Relics:addSection('Relics')
+-- Cove Relics - 7
+-- Space Relics - 6
+-- Heaven Relics - 5
+-- Pyramid Relics - 4
+-- Temple Relics - 3
+-- Atlantis Relics - 2
+
+local worlds = {['Cove'] = {'7', 8}, ['Space'] = {'6', 5}, ['Heaven'] = {'5', 2}, ['Pyramid'] = {'4', 2}, ['Temple'] = {'3', 1}, ['Atlantis'] = {'2', 1}}
+Sections.Relics = Pages.Relics:addSection('Buy Relics')
+Sections.Relics:addDropdown('Select Relics Shop', {'Cove', 'Space', 'Heaven', 'Pyramid', 'Temple', 'Atlantis'}, function(value)
+    getgenv().Settings.relics.current = worlds[value]
+end)
+Sections.Relics:addToggle('Auto Buy Relics', nil, function(value)
+    getgenv().Settings.relics.enabled = value
+    while getgenv().Settings.relics.enabled and task.wait(.1) do 
+        coroutine.wrap(function()
+            Utils:buyRelics(getgenv().Settings.relics.current) 
+        end)()
+    end
+end)
+Sections.Relics:addToggle('Auto Buy Gems', nil, function(value)
+    getgenv().Settings.gems = value
+    while getgenv().Settings.gems and task.wait(.1) do 
+        coroutine.wrap(function()
+            Utils:buyGems() 
+        end)()
+    end
+end)
+Sections.Relics = Pages.Relics:addSection('Merge')
 Sections.Relics:addSlider('Minimum Amount', 3, 3, 33, function(value) getgenv().Settings.relics.minimum = value end)
 Sections.Relics:addToggle('Auto Merge Relics', nil, function(value)
     getgenv().Settings.relics.enabled = value
@@ -266,16 +304,7 @@ Sections.Relics:addToggle('Auto Merge Relics', nil, function(value)
         end)()
     end
 end)
-Sections.Relics:addToggle('Auto Buy Gems', nil, function(value)
-    getgenv().Settings.buyGems = value
-    while getgenv().Settings.buyGems and task.wait(.1) do 
-        coroutine.wrap(function()
-            Utils:buyGems() 
-        end)()
-    end
-end)
 
--- Cove Relics, Space Relics, Heaven Relics, Pyramid Relics, Temple Relics, Atlantis Relics
 
 -- Sections.Miscs = Pages.Miscs:addSection('Miscs')
 -- Sections.Miscs:addToggle('Auto Buy Gems', nil, function(value)
